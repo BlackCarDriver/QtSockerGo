@@ -20,11 +20,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     bridge.cpp \
+    datastruct.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     bridge.h \
+    datastruct.h \
     mainwindow.h
 
 FORMS += \
