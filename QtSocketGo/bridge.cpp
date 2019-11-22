@@ -31,35 +31,11 @@ void Bridge::MakeSocketConnection(){
 
     } else {
            Isconnected = true;
-           QMessageBox::information(this, "Msg", "Connect success!");
+           emit sendSignal("connect_success");
            connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(SocketReadData()));
            connect(tcpSocket, SIGNAL(disconnected()), this, SLOT(SocketDisconect()));
     }
     return;
-}
-
-//read data from socket connection
-void Bridge::SocketReadData(){
-    char *buffer = new char[MTU+1];
-    QString qs = "";
-    long long res = tcpSocket->read(buffer, MTU);
-    qDebug()<<"read, length is "<<res<<endl;
-    if( strlen(buffer) > 0) {
-         qs = buffer;
-         int idx = qs.indexOf("@");
-         if (idx < 0 ){
-             qDebug()<<"Error: no @ in receive data!"<<endl;
-             return;
-         }
-         QString key = qs.left(idx);
-         QString content = qs.right(qs.length()-idx-1);
-         qDebug()<<"Receive data: "<<key <<"     "<<content<<endl;
-         emit getMsg(key, content);
-    } else {
-           qDebug()<<"FAIL!"<<endl;
-           QMessageBox::warning(this, "Error", "Receive message fail!");
-    }
-    delete []buffer;
 }
 
 //socket connection break
@@ -79,19 +55,58 @@ void Bridge::disconnect(){
 //send data to client
 //key defined the function and can't contain char '@'
 void Bridge::sendMessage(string key, DataStruct *data){
-    if(key.find("@")!=0){
+    if(key.find("@")!=key.npos){
         QMessageBox::warning(this, "Error", "Unexpect key!");
-        exit(1);
+        return;
     }
-    string package = key + "@" + data->toString();
+    QString content = QString(data->toString());
+    content.replace("#", "^#");
+    string package = key + "@" + content.toStdString() + "\\#";
     if(int(package.length()*sizeof(char))>this->MTU){
         QMessageBox::warning(this, "Error", "Sending data overflow!");
-        exit(1);
+        return;
     }
+    qDebug()<<package.c_str();
     tcpSocket->write(package.c_str(), sizeof(char)*package.length());
 }
 
-
+//read data from socket connection
+void Bridge::SocketReadData(){
+    char *buffer = new char[MTU+1];
+    QString qs = "";
+    long long res = tcpSocket->read(buffer, MTU);
+    qDebug()<<"read, length is "<<res<<endl;
+    if( strlen(buffer) > 0) {
+         qs = buffer;
+         int idx = qs.indexOf("@");
+         if (idx < 0 ){
+             qDebug()<<"Error: no @ in receive data!"<<endl;
+             delete []buffer;
+             return;
+         }
+         QString key = qs.left(idx);
+         QString content = qs.right(qs.length()-idx-1);
+         content.replace("^#", "#");
+         if (!content.endsWith("\\#")){
+             qDebug()<<"Receive data not end with '\\#'!";
+             if (!content.contains("\\#")){
+                 delete []buffer;
+                 return;
+             }
+             int tidx = content.lastIndexOf("\\#");
+             content = content.left(tidx);
+         }else{
+             content = content.left(content.length()-2);
+         }
+         qDebug()<<"Receive data: "<<key <<"     "<<content<<endl;
+         emit getMsg(key, content);
+    } else {
+           qDebug()<<"FAIL!"<<endl;
+           QMessageBox::warning(this, "Error", "Receive message fail!");
+    }
+    delete []buffer;
+    return;
+}
 
 
 

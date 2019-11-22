@@ -21,6 +21,8 @@ private slots:
     void messageHandle(QString key, QString content);
     void functionHandle(QString key);
 
+    void on_sendBtn_clicked();
+
 private:
     Ui::MainWindow *ui;
     Bridge *bridge;

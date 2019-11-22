@@ -1,16 +1,23 @@
 #include "datastruct.h"
+#include <QJsonObject>
+#include <QJsonDocument>
 
 //===================== DataStruct ===============
 
 DataStruct::DataStruct(){}
 
+DataStruct::~DataStruct(){}
+
 //====================== SimpleStr =================
 
 
-string simpleStr::toString(){
+
+simpleStr::~simpleStr(){}
+
+QString simpleStr::toString(){
     return data;
 }
 
-void simpleStr::init(string jstr){
+void simpleStr::init(QString jstr){
     this->data= jstr;
 }

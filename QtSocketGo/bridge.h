@@ -30,7 +30,6 @@ private slots:
      void SocketReadData();
      void SocketDisconect();
 
-
 private:
     QTcpServer *tcpServer;
     QTcpSocket *tcpSocket;

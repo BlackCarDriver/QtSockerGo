@@ -13,20 +13,20 @@ using namespace std;
 class DataStruct {
 public:
     DataStruct();
-    virtual ~DataStruct()=0;
-    virtual string toString()=0;
-    virtual void init(string)=0;
+    virtual ~DataStruct();
+    virtual QString toString()=0;
+    virtual void init(QString)=0;
 };
 
 //====================== SimpleStr =================
 
 class simpleStr : public DataStruct {
 public:
-    string data;
+    QString data;
 public:
     ~simpleStr();
-    string toString();
-    void init(string jstr);
+    QString toString();
+    void init(QString jstr);
 };
 
 
